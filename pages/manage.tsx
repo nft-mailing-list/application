@@ -46,7 +46,7 @@ export default function Manage({ address }: AuthenticatedPageProps) {
   const [tokensOwned, setTokensOwned] = useState<number>(0)
 
   useContractRead({
-    addressOrName: process.env.NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS ?? '0x0000000000000000000000000000000000000000',
+    addressOrName: process.env.NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS ?? `0x0000000000000000000000000000000000000000`,
     contractInterface: [{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}],
     functionName: 'balanceOf',
     args: address,
@@ -70,7 +70,7 @@ export default function Manage({ address }: AuthenticatedPageProps) {
 
   const showManageView = () => {
     if(tokensOwned === 0) {
-        return(<p>😭 You cannot join this mailing list as you don't own the relevant NFT!</p>)
+        return(<p>😭 You cannot join this mailing list as you do not own the relevant NFT!</p>)
     }
 
     return (
