@@ -7,7 +7,11 @@ import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import { SessionProvider } from 'next-auth/react';
-import type { AppProps } from 'next/app';
+import type { NextComponentType } from 'next';
+
+type CustomAppProps = AppProps & {
+  Component: NextComponentType & {auth?: boolean} // add auth type
+}
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -45,7 +49,7 @@ const getSiweMessageOptions: GetSiweMessageOptions = () => ({
 });
 
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps: { session, ...pageProps } }: CustomAppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
       <SessionProvider refetchInterval={0} session={pageProps.session}>
