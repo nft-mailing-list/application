@@ -7,12 +7,7 @@ import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import { SessionProvider } from 'next-auth/react';
-import type { NextComponentType } from 'next';
-import type { AppProps } from 'next/app'
-
-type CustomAppProps = AppProps & {
-  Component: NextComponentType & {auth?: boolean} // add auth type
-}
+import type { AppProps } from 'next/app';
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
@@ -50,9 +45,10 @@ const getSiweMessageOptions: GetSiweMessageOptions = () => ({
 });
 
 
-function MyApp({ Component, pageProps: { session, ...pageProps } }: CustomAppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
+      { /* @ts-ignore */ }
       <SessionProvider refetchInterval={0} session={pageProps.session}>
         <RainbowKitSiweNextAuthProvider
             getSiweMessageOptions={getSiweMessageOptions}>
