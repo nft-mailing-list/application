@@ -14,3 +14,27 @@ a {
 * {
   box-sizing: border-box;
 }
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  font-weight: 400;
+  padding: 0.5em;
+}
+input {
+  padding: 0.5em;
+  border: 2px solid #e4e4e4;
+  border-radius: 5px;
+}
+form > button {
+  border: 1px solid transparent;
+  margin: 1em;
+  padding: 0.5em;
+  align-items: center;
+  background: #0e76fd;
+  color: #fff;
+  font-weight: 800;
+  border-radius: 12px;
+}

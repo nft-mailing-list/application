@@ -9,16 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ethersproject/bignumber": "^5.7.0",
     "@rainbow-me/rainbowkit": "^0.5.1",
+    "@rainbow-me/rainbowkit-siwe-next-auth": "^0.1.1",
     "ethers": "^5.0.0",
     "next": "^12.1.6",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
+    "siwe": "^1.1.6",
     "wagmi": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.35",
     "@types/react": "^18.0.9",
+    "@types/styled-components": "^5.1.26",
     "eslint": "^8.15.0",
     "eslint-config-next": "^12.1.6",
     "typescript": "^4.7.2"
