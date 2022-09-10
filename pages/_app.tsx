@@ -8,6 +8,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import { SessionProvider } from 'next-auth/react';
 import type { NextComponentType } from 'next';
+import type { AppProps } from 'next/app'
 
 type CustomAppProps = AppProps & {
   Component: NextComponentType & {auth?: boolean} // add auth type
