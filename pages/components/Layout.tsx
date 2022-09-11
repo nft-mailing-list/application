@@ -5,11 +5,11 @@ import styles from "../../styles/Layout.module.css";
 
 export default function Layout({
   title,
-  showNavigation,
+  showAdminLink,
   children,
 }: {
   title: string;
-  showNavigation: boolean;
+  showAdminLink: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -33,7 +33,10 @@ export default function Layout({
         </div>
       </main>
 
-      <footer className={styles.footer}>NFT Mailing List</footer>
+      <footer className={styles.footer}>
+        <p>NFT Mailing List</p>
+        {showAdminLink && <a id={styles.adminLink} href="/admin">⚙️</a>}
+      </footer>
     </div>
   );
 }

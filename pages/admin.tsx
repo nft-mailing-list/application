@@ -23,7 +23,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const address = token?.sub ?? null;
 
-  if (!address) {
+  // See if the address is the admin address
+  let isAdmin = false;
+  if (address) {
+    const adminAddress =
+      process.env.NEXT_PUBLIC_ADMIN_ADDRESS ??
+      `0x0000000000000000000000000000000000000000`;
+    isAdmin = address.toLowerCase() === adminAddress.toLowerCase();
+  }
+
+  if (!address || !isAdmin) {
     return {
       redirect: {
         destination: "/",
@@ -32,23 +41,47 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  // Fetch the user address
-  const getContact: { email: string; isSubscribed: boolean } | null =
-    await prisma.contact.findUnique({
-      where: {
-        address: address,
-      },
-      select: {
-        email: true,
-        isSubscribed: true,
-      },
-    });
+  // Get generalised stats
+  const activeSubscribedNfts = await prisma.contact.aggregate({
+    where: {
+      isSubscribed: true,
+    },
+    _sum: {
+      nftsOwned: true,
+    },
+  });
+  const allSubscribeNfts = await prisma.contact.aggregate({
+    _sum: {
+      nftsOwned: true,
+    },
+  });
+
+  const stats = [
+    {
+      value: activeSubscribedNfts._sum.nftsOwned,
+      label: `Count of NFTs with active subscription in mailing list`,
+    },
+    {
+      value: allSubscribeNfts._sum.nftsOwned,
+      label: `Count of NFTs in mailing list`,
+    },
+  ];
+
+  const allContacts = await prisma.contact.findMany({
+    where: {
+      isSubscribed: true,
+    },
+    select: {
+      email: true,
+    },
+  });
 
   return {
     props: {
       address,
       session,
-      profile: getContact,
+      stats,
+      allContacts,
     },
   };
 };
@@ -66,40 +99,21 @@ async function saveProfile(payload: any) {
   return await response.json();
 }
 
-export default function Manage({ address, profile }: AuthenticatedPageProps) {
+export default function Admin({
+  address,
+  stats,
+  allContacts,
+}: AuthenticatedPageProps) {
   const router = useRouter();
   const { status } = useSession();
   const { address: injectedAddress } = useAccount();
-
-  const [hasCheckedTokens, setHasCheckedTokens] = useState<boolean>(false);
-  const [tokensOwned, setTokensOwned] = useState<number>(0);
 
   const [message, setMessage] = useState<string>("");
   const [signedMessage, setSignedMessage] = useState<string>("");
 
   const [apiResponseMsg, setApiResponseMsg] = useState<string>("");
 
-  useContractRead({
-    addressOrName:
-      process.env.NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS ??
-      `0x0000000000000000000000000000000000000000`,
-    contractInterface: [
-      {
-        inputs: [{ internalType: "address", name: "owner", type: "address" }],
-        name: "balanceOf",
-        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-        stateMutability: "view",
-        type: "function",
-      },
-    ],
-    functionName: "balanceOf",
-    args: address,
-    chainId: parseInt(process.env.NEXT_PUBLIC_EVM_CHAIN_ID ?? "1"),
-    onSuccess(res) {
-      setTokensOwned(BigNumber.from(res).toNumber());
-      setHasCheckedTokens(true);
-    },
-  });
+  console.log(allContacts);
 
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message,
@@ -138,7 +152,6 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
       // Now save the address
       const didProfileSave = async () => {
         const res = await saveProfile(payload);
-        console.log(res)
         return res;
       };
 
@@ -155,19 +168,6 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
   };
 
   const showManageView = () => {
-    if (!hasCheckedTokens) {
-      return <>Just one sec...</>;
-    }
-
-    if (tokensOwned === 0) {
-      return (
-        <p>
-          😭 You cannot join this mailing list as you do not own the relevant
-          NFT!
-        </p>
-      );
-    }
-
     return (
       <>
         <form
@@ -175,14 +175,7 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
             handleForm(e);
           }}
         >
-          <input
-            type="email"
-            name="email"
-            size={30}
-            required
-            placeholder={`Email Address`}
-            defaultValue={(profile && profile.email) ?? ""}
-          ></input>
+            Coming soon
           <button>Save</button>
         </form>
         {apiResponseMsg}
@@ -190,8 +183,37 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
     );
   };
 
+  const showGeneralStats = () => {
+    return (
+      <ul>
+        {stats.map((stat: any) => {
+          return (
+            <li>
+              <strong>{stat.label}:</strong> {stat.value}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  const showMailingList = () => {
+    return (
+      <textarea cols={50} rows={20} defaultValue={allContacts.map(({ email }: any) => email).join("\r\n")}>
+      </textarea>
+    );
+  };
+
   return (
-    <Layout title={`Manage Subscription`} showAdminLink={true}>
+    <Layout title={`Admin`} showAdminLink={true}>
+      <h3>Stats</h3>
+      {showGeneralStats()}
+
+      <h3>Mailing List</h3>
+      <p>Total Active Mail Subscriptions: {allContacts.length}</p>
+      {showMailingList()}
+
+      <h3>Edit Settings</h3>
       {showManageView()}
     </Layout>
   );

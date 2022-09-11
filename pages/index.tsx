@@ -41,7 +41,7 @@ export default function Index() {
   });
 
   return(
-    <Layout title={`Join the NFT mailing list!`} showNavigation={false}>
+    <Layout title={`Join the NFT mailing list!`} showAdminLink={false}>
         By joining the mailing list you can receive updates from your favourite NFT minters via email.
     </Layout>
   )
