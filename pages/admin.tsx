@@ -1,6 +1,7 @@
 import Layout from "./components/Layout";
+import Email from "./components/Email";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -112,8 +113,6 @@ export default function Admin({
 
   const [apiResponseMsg, setApiResponseMsg] = useState<string>("");
 
-  console.log(allContacts);
-
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message,
     onSettled(data, error) {
@@ -174,7 +173,7 @@ export default function Admin({
             handleForm(e);
           }}
         >
-            Coming soon
+          Coming soon
           <button>Save</button>
         </form>
         {apiResponseMsg}
@@ -198,8 +197,11 @@ export default function Admin({
 
   const showMailingList = () => {
     return (
-      <textarea cols={50} rows={20} defaultValue={allContacts.map(({ email }: any) => email).join("\r\n")}>
-      </textarea>
+      <textarea
+        cols={50}
+        rows={20}
+        defaultValue={allContacts.map(({ email }: any) => email).join("\r\n")}
+      ></textarea>
     );
   };
 
@@ -214,6 +216,11 @@ export default function Admin({
 
       <h3>Edit Settings</h3>
       {showManageView()}
+
+      <h3>Send email (via Mailgun)</h3>
+      <div className="editor-container">
+        <Email />
+      </div>
     </Layout>
   );
 }

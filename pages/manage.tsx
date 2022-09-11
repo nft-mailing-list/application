@@ -149,7 +149,6 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
       // Now save the address
       const didProfileSave = async () => {
         const res = await saveProfile(payload);
-        console.log(res)
         return res;
       };
 
