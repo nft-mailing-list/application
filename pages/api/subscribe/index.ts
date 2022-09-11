@@ -2,13 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from '@prisma/client'
 import { utils } from 'ethers'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// eslint-disable-next-line
 // @ts-ignore
 import isValidEmail from "@dendibaev/isvalid-email";
 
 const prisma = new PrismaClient();
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function addSubscription(req: NextApiRequest, res: NextApiResponse) {
     if(req.method !== 'POST') {
         return res.status(405).json({message: 'Method not allowed!'});
     }
