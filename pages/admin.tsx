@@ -90,8 +90,8 @@ type AuthenticatedPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >;
 
-async function saveProfile(payload: any) {
-  const response = await fetch("/api/subscribe", {
+async function saveSettings(payload: any) {
+  const response = await fetch("/api/settings", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -150,12 +150,12 @@ export default function Admin({
       };
 
       // Now save the address
-      const didProfileSave = async () => {
-        const res = await saveProfile(payload);
+      const didSettingsSave = async () => {
+        const res = await saveSettings(payload);
         return res;
       };
 
-      didProfileSave()
+      didSettingsSave()
         .then((resp) => setApiResponseMsg(resp.message))
         .catch((resp) => setApiResponseMsg(resp.message));
     }
@@ -186,9 +186,9 @@ export default function Admin({
   const showGeneralStats = () => {
     return (
       <ul>
-        {stats.map((stat: any) => {
+        {stats.map((stat: any, key: any) => {
           return (
-            <li>
+            <li key={stat.label}>
               <strong>{stat.label}:</strong> {stat.value ?? 0}
             </li>
           );

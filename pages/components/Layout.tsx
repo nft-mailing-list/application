@@ -2,6 +2,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Head from "next/head";
 import React from "react";
 import styles from "../../styles/Layout.module.css";
+import Link from "next/link";
 
 export default function Layout({
   title,
@@ -35,7 +36,7 @@ export default function Layout({
 
       <footer className={styles.footer}>
         <p>NFT Mailing List</p>
-        {showAdminLink && <a id={styles.adminLink} href="/admin">⚙️</a>}
+        {showAdminLink && <Link href="/admin"><a id={styles.adminLink}>⚙️</a></Link>}
       </footer>
     </div>
   );
