@@ -184,7 +184,7 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
             placeholder={`Email Address`}
             defaultValue={(profile && profile.email) ?? ""}
           ></input>
-          <button>{isSuccess ? `Save` : `Sign`}</button>
+          <button>Save</button>
         </form>
         {apiResponseMsg}
       </>

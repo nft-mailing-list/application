@@ -40,13 +40,14 @@ This `postgres://...` value is needed for this project, specificall the `DB_URL`
 
 We now need to host this application. We can do it again with one-click to use Vercel.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnft-mailing-list%2Fapplication&env=NEXTAUTH_SECRET,NEXTAUTH_URL,DB_URL,NEXT_PUBLIC_ENABLE_TESTNETS,NEXT_PUBLIC_SITE_TITLE,NEXT_PUBLIC_ALCHEMY_API_KEY,NEXT_PUBLIC_EVM_CHAIN_ID,NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS,NEXT_PUBLIC_ADMIN_ADDRESS&build-command=vercel-build)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnft-mailing-list%2Fapplication&env=NEXTAUTH_SECRET,NEXTAUTH_URL,DB_URL,RPC_NODE,NEXT_PUBLIC_ENABLE_TESTNETS,NEXT_PUBLIC_SITE_TITLE,NEXT_PUBLIC_ALCHEMY_API_KEY,NEXT_PUBLIC_EVM_CHAIN_ID,NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS,NEXT_PUBLIC_ADMIN_ADDRESS&build-command=vercel-build)
 
 Take a look at `.env.local.example` for some defaults on the environment variables. If you're not using Vercel and the platform does not support ENV variables through a GUI, make this into a `.env` file.
 
 * `NEXTAUTH_SECRET` - Go to https://generate-secret.now.sh/32 and copy the output
 * `NEXTAUTH_URL` - 
 * `DB_URL` - The string you copied in the database application, starting with `postgres://`
+* `RPC_NODE` - The RPC node to check chain state (ie: `https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC`)
 * `NEXT_PUBLIC_ENABLE_TESTNETS` - Have `true` if you want to enable testnets on connection, otherwise `false`
 * `NEXT_PUBLIC_SITE_TITLE` - The title of the site
 * `NEXT_PUBLIC_ALCHEMY_API_KEY` - If you don't have an [alchemy key](https://www.alchemy.com/) then use the default public one `_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC`

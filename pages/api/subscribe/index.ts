@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from '@prisma/client'
-import { utils } from 'ethers'
+import { ethers, utils } from 'ethers'
 
 // eslint-disable-next-line
 // @ts-ignore
@@ -51,6 +51,26 @@ export default async function addSubscription(req: NextApiRequest, res: NextApiR
     if(verified !== checksumAddress) {
         return res.status(404).json({message: 'Signature is not valid'});
     }
+
+    // Check to see if they have the NFT
+    const contractAddress = process.env.NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS ?? `0x0000000000000000000000000000000000000000`
+    const RPC = new ethers.providers.JsonRpcProvider(process.env.RPC_NODE ?? `localhost`)
+    const contract = new ethers.Contract(contractAddress, [
+        {
+          inputs: [{ internalType: "address", name: "owner", type: "address" }],
+          name: "balanceOf",
+          outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+          stateMutability: "view",
+          type: "function",
+        },
+      ], RPC);
+
+    const amount = await contract.balanceOf(checksumAddress);
+
+    if(amount.toNumber() <= 0) {
+        return res.status(404).json({message: 'You do not own the NFT to join the mailing list.'});
+    }
+    
 
     let savedContact;
     try {
