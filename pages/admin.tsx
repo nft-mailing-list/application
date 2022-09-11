@@ -189,7 +189,7 @@ export default function Admin({
         {stats.map((stat: any) => {
           return (
             <li>
-              <strong>{stat.label}:</strong> {stat.value}
+              <strong>{stat.label}:</strong> {stat.value ?? 0}
             </li>
           );
         })}
