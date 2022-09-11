@@ -15,7 +15,9 @@ model Contact {
   address       String
   email         String
   isSubscribed  Boolean   @default(false)
+  nftsOwned     Int       @default(0)
   inserted      DateTime  @default(now())
+  updated       DateTime  @default(now())
 
   @@unique([address], name: "unique_address")
 }

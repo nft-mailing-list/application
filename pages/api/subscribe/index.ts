@@ -65,9 +65,9 @@ export default async function addSubscription(req: NextApiRequest, res: NextApiR
         },
       ], RPC);
 
-    const amount = await contract.balanceOf(checksumAddress);
+    const amountOwned = await contract.balanceOf(checksumAddress);
 
-    if(amount.toNumber() <= 0) {
+    if(amountOwned.toNumber() <= 0) {
         return res.status(404).json({message: 'You do not own the NFT to join the mailing list.'});
     }
     
@@ -81,11 +81,14 @@ export default async function addSubscription(req: NextApiRequest, res: NextApiR
             update: {
                 email: data.email.toLowerCase(),
                 isSubscribed: true,
+                nftsOwned: amountOwned.toNumber(),
+                updated: new Date()
             },
             create: {
                 address: checksumAddress,
                 email: data.email.toLowerCase(),
-                isSubscribed: true
+                isSubscribed: true,
+                nftsOwned: amountOwned.toNumber()
             }
         })
     } catch(e) {
