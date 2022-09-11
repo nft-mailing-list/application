@@ -13,7 +13,12 @@ import { getToken } from "next-auth/jwt";
 import { BigNumber } from "@ethersproject/bignumber";
 import serialize from "form-serialize";
 
+import { PrismaClient } from "@prisma/client";
+import { profile } from "console";
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const prisma = new PrismaClient();
+
   const session = await getSession(context);
   const token = await getToken({ req: context.req });
 
@@ -28,10 +33,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
+  // Fetch the user address
+  const getContact: { email: string; isSubscribed: boolean } | null =
+    await prisma.contact.findUnique({
+      where: {
+        address: address,
+      },
+      select: {
+        email: true,
+        isSubscribed: true,
+      },
+    });
+
   return {
     props: {
       address,
       session,
+      profile: getContact,
     },
   };
 };
@@ -40,7 +58,16 @@ type AuthenticatedPageProps = InferGetServerSidePropsType<
   typeof getServerSideProps
 >;
 
-export default function Manage({ address }: AuthenticatedPageProps) {
+async function saveProfile(payload: any) {
+  const response = await fetch("/api/subscribe", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  return await response.json();
+}
+
+export default function Manage({ address, profile }: AuthenticatedPageProps) {
   const router = useRouter();
   const { status } = useSession();
   const { address: injectedAddress } = useAccount();
@@ -50,6 +77,8 @@ export default function Manage({ address }: AuthenticatedPageProps) {
 
   const [message, setMessage] = useState<string>("");
   const [signedMessage, setSignedMessage] = useState<string>("");
+
+  const [apiResponseMsg, setApiResponseMsg] = useState<string>("");
 
   useContractRead({
     addressOrName:
@@ -75,10 +104,9 @@ export default function Manage({ address }: AuthenticatedPageProps) {
 
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message,
-    onSuccess(data) {
-        // Reset the message to send
-        setSignedMessage(message);
-        setMessage('')
+    onSettled(data, error) {
+      setSignedMessage(message);
+      setMessage("");
     },
   });
 
@@ -97,21 +125,29 @@ export default function Manage({ address }: AuthenticatedPageProps) {
   });
 
   useEffect(() => {
-    if(message !== "") {
-        signMessage();
+    if (message !== "" || signedMessage !== message) {
+      signMessage();
     }
 
-    if(isSuccess) {
-        console.log(data, signMessage, signedMessage);
-        const signedProof = {
-            data: signedMessage,
-            proof: data,
-            address: address,
-        };
-    
-        console.log(signedProof);
+    if (isSuccess) {
+      const payload = {
+        data: signedMessage,
+        proof: data,
+        address: address,
+      };
+
+      // Now save the address
+      const didProfileSave = async () => {
+        const res = await saveProfile(payload);
+        console.log(res)
+        return res;
+      };
+
+      didProfileSave()
+        .then((resp) => setApiResponseMsg(resp.message))
+        .catch((resp) => setApiResponseMsg(resp.message));
     }
-  }, [message, isSuccess])
+  }, [message, isSuccess]);
 
   const handleForm = (e: any) => {
     e.preventDefault();
@@ -134,20 +170,24 @@ export default function Manage({ address }: AuthenticatedPageProps) {
     }
 
     return (
-      <form
-        onSubmit={(e) => {
-          handleForm(e);
-        }}
-      >
-        <input
-          type="email"
-          name="email"
-          size={30}
-          required
-          placeholder={`Email Address`}
-        ></input>
-        <button>{isSuccess ? `Save` : `Sign`}</button>
-      </form>
+      <>
+        <form
+          onSubmit={(e) => {
+            handleForm(e);
+          }}
+        >
+          <input
+            type="email"
+            name="email"
+            size={30}
+            required
+            placeholder={`Email Address`}
+            defaultValue={(profile && profile.email) ?? ""}
+          ></input>
+          <button>{isSuccess ? `Save` : `Sign`}</button>
+        </form>
+        {apiResponseMsg}
+      </>
     );
   };
 
