@@ -28,15 +28,16 @@ input {
   border: 2px solid #e4e4e4;
   border-radius: 5px;
 }
-form > button {
+form > button, .editor-container button[type="submit"] {
   border: 1px solid transparent;
-  margin: 1em;
+  margin: 1em 0;
   padding: 0.5em;
   align-items: center;
   background: #0e76fd;
   color: #fff;
   font-weight: 800;
   border-radius: 12px;
+  width: 100%;
 }
 
 .editor-container button {

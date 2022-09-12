@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAccount, useSignMessage } from "wagmi";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -13,34 +14,79 @@ async function getIsMailgunConfigured() {
 }
 
 export default function Email() {
+  const { address: injectedAddress } = useAccount();
+  const [hasCheckedEmailBackendConfigured, setHasCheckedEmailBackendConfigured] = useState<boolean>(false);
+
   const [canUseEditor, setCanUseEditor] = useState<boolean>(false);
   const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
   const [sendEmailResponse, setSendEmailResponse] = useState<string>("");
 
+  const [htmlEmailBody, setHtmlEmailBody] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [signedMessage, setSignedMessage] = useState<string>("");
+
+  const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
+    message,
+    onSettled(data, error) {
+      setSignedMessage(message);
+      setMessage("");
+    },
+  });
+
   useEffect(() => {
+    if(hasCheckedEmailBackendConfigured) {
+      return;
+    }
+
+    // Now save the address
+    const isMailgunConfigured = async () => {
+      const res = await getIsMailgunConfigured();
+      setHasCheckedEmailBackendConfigured(true);
+      return res;
+    };
+
+    isMailgunConfigured()
+      .then((res) => setCanUseEditor(res.status === 200))
+      .catch(() => setCanUseEditor(false));
+  }, [hasCheckedEmailBackendConfigured]);
+
+  useEffect(() => {
+    if (message !== "" || signedMessage !== message) {
+      console.log(message)
+      signMessage();
+    }
+
+    if (isSuccess) {
+      const payload = {
+        data: {
+          text: signedMessage,
+          html: htmlEmailBody,
+        },
+        proof: data,
+        address: injectedAddress,
+      };
+
       // Now save the address
-      const isMailgunConfigured = async () => {
-        const res = await getIsMailgunConfigured();
+      const didEmailSend = async () => {
+        const res = await sendEmail(payload);
         return res;
       };
 
-      isMailgunConfigured()
-        .then((res) => setCanUseEditor(res.status === 200))
-        .catch(() => setCanUseEditor(false));
-  });
+      didEmailSend()
+        .then((resp: any) => setSendEmailResponse(resp.message ?? `Sent`))
+        .catch((resp) => setSendEmailResponse(resp.message ?? `An error occured`));
+    }
+  }, [message, isSuccess]);
 
-  async function sendEmail(text: string, html: string) {
+  async function sendEmail(payload: any) {
     setIsSendingEmail(true);
     setSendEmailResponse("");
 
     const response = await fetch("/api/email/send", {
       method: "POST",
-      body: JSON.stringify({
-        text,
-        html
-      })
+      body: JSON.stringify(payload),
     });
-    
+
     const res = await response.json();
     setIsSendingEmail(false);
     setSendEmailResponse(res.message);
@@ -90,12 +136,13 @@ export default function Email() {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
-  if(!canUseEditor) {
-    return(
+  if (!canUseEditor) {
+    return (
       <>
-        Mailgun is not configured, you cannot send an email from this application.
+        Mailgun is not configured, you cannot send an email from this
+        application.
       </>
-    )
+    );
   }
 
   return (
@@ -139,7 +186,16 @@ export default function Email() {
 
       <EditorContent editor={editor} />
 
-      <button disabled={isSendingEmail} onClick={async () => await sendEmail(editor!.getText(), editor!.getHTML())}>Send Email</button>
+      <button
+        type="submit"
+        disabled={isSendingEmail}
+        onClick={() => {
+          setHtmlEmailBody(editor!.getHTML());
+          setMessage(editor!.getText());
+        }}
+      >
+        Send Email
+      </button>
       <div>{sendEmailResponse}</div>
     </>
   );
