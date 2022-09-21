@@ -32,6 +32,11 @@ export default function Email() {
       setSignedMessage(message);
       setMessage("");
     },
+    onMutate(args) {
+      if(message === "") {
+        throw new Error("Message is blank. Cannot sign a blank message.")
+      }
+    },
   });
 
   useEffect(() => {
@@ -53,8 +58,11 @@ export default function Email() {
 
   useEffect(() => {
     if (message !== "" || signedMessage !== message) {
-      console.log(message)
-      signMessage();
+      try {
+        signMessage();
+      } catch(e) {
+        console.log(e);
+      }
     }
 
     if (isSuccess) {
