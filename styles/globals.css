@@ -1,0 +1,58 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  font-weight: 400;
+  padding: 0.5em;
+}
+input {
+  padding: 0.5em;
+  border: 2px solid #e4e4e4;
+  border-radius: 5px;
+}
+form > button, .editor-container button[type="submit"] {
+  border: 1px solid transparent;
+  margin: 1em 0;
+  padding: 0.5em;
+  align-items: center;
+  background: #0e76fd;
+  color: #fff;
+  font-weight: 800;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.editor-container button {
+  margin: 0.25em;
+}
+.draft-email-editor {
+  border: 2px solid #CBCBCB;
+  border-radius: 5px;
+  padding: 0.25em 1em;
+  margin: 0.5em 0;
+}
+
+.draft-email-editor a {
+  color: #51a6d1;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: #51a6d1;
+}

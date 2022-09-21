@@ -1,0 +1,88 @@
+{
+	"name": "NFT-Mailing-List-Application",
+	"description": "One-click init of the NFT-Mailing-List",
+	"repository": "",
+	"keywords": [],
+    "formation": {
+        "web": {
+          "quantity": 1
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        }
+    ],
+	"env": {
+        "NEXTAUTH_SECRET": {
+            "description": "Go to https://generate-secret.now.sh/32 and copy the output",
+            "value": "",
+            "required": true
+        },
+        "NEXTAUTH_URL": {
+            "description": "This is the domain of the app - it will be the app name (first box you filled in at the top) plus `https://{app-name}.herokuapp.com/`",
+            "value": "",
+            "required": true
+        },
+        "RPC_NODE": {
+            "description": "The RPC node to check chain state (ie: `https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC`)",
+            "value": "https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "required": true
+        },
+        "NEXT_PUBLIC_ENABLE_TESTNETS": {
+            "description": "Have `true` if you want to enable testnets on connection, otherwise `false`",
+            "value": "false",
+            "required": true
+        },
+        "NEXT_PUBLIC_SITE_TITLE": {
+            "description": "The title of your mailing list",
+            "value": "",
+            "required": true
+        },
+        "NEXT_PUBLIC_ALCHEMY_API_KEY": {
+            "description": "If you don't have an [alchemy key](https://www.alchemy.com/) then use the default public one `_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC`",
+            "value": "_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC",
+            "required": true
+        },
+        "NEXT_PUBLIC_EVM_CHAIN_ID": {
+            "description": "The chainID that your NFT contract is on, see https://chainlist.org/ if you are unsure",
+            "value": "1",
+            "required": true
+        },
+        "NEXT_PUBLIC_EVM_NFT_CONTRACT_ADDRESS": {
+            "description": "The contract address for your NFT (0x)",
+            "value": "",
+            "required": true
+        },
+        "NEXT_PUBLIC_ADMIN_ADDRESS": {
+            "description": "Your 0x address. SIWE with this address to access the admin panel",
+            "value": "",
+            "required": true
+        },
+        "MAILGUN_PRIVATE_API_KEY": {
+            "description": "Your Mailgun API key https://app.mailgun.com/app/account/security/api_keys",
+            "value": "",
+            "required": false
+        },
+        "MAILGUN_API_DOMAIN": {
+            "description": "The API endpoint for mailgun (this will change if you're using the sandbox)",
+            "value": "",
+            "required": false
+        },
+        "MAILGUN_FROM_EMAIL": {
+            "description": "The email address to send these emails from (ie: `Harry Denley <hello@harrydenley.com>`)",
+            "value": "",
+            "required": false
+        }
+    },
+	"addons": [
+		"scheduler",
+		{
+			"plan": "heroku-postgresql",
+			"as": "DB",
+			"options": {
+				"version": "14"
+			}
+		}
+	]
+}
