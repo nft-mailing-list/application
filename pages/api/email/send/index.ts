@@ -85,12 +85,11 @@ export default async function sendEmail(
 
   client.messages
     .create(process.env.MAILGUN_API_DOMAIN ?? "localhost", messageData)
-    .then((resp) => {
-      console.log(resp)
-      res.json({ message: "Email queued with Mailgun, ready to be sent!" });
+    .then(() => {
+      res.json({message: "Email queued with Mailgun, ready to be sent!"});
     })
     .catch((err) => {
       console.log(err)
-      res.json({ message: err.message });
+      res.json({message: `An error occurred: ${err.message}`});
     });
 }
