@@ -36,7 +36,7 @@ Take a look at [`.env.local.example`](https://github.com/nft-mailing-list/applic
 | ENV Name                             	| Notes                                                                                                                           	|
 |--------------------------------------	|---------------------------------------------------------------------------------------------------------------------------------	|
 | NEXTAUTH_SECRET                      	| Go to https://generate-secret.now.sh/32 and copy the output                                                                     	|
-| NEXTAUTH_URL                         	|                                                                                                                                 	|
+| NEXTAUTH_URL                         	| The domain of the application (ie: `https://nft-mailing-list.com/` or `http://localhost:3000`)                                   	|
 | DB_URL                               	| The string you copied in the database application, starting with `postgres://`                                                  	|
 | RPC_NODE                             	| The RPC node to check chain state (ie: `https://eth-mainnet.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC`)                 	|
 | NEXT_PUBLIC_ENABLE_TESTNETS          	| Have `true` if you want to enable testnets on connection, otherwise `false`                                                     	|
