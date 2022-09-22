@@ -13,14 +13,22 @@ import { getToken } from "next-auth/jwt";
 import { BigNumber } from "@ethersproject/bignumber";
 import serialize from "form-serialize";
 
-import { prisma } from '../components/db'
+import { prisma } from "../components/db";
+import { getContentByLabel } from "../utils";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  
   const session = await getSession(context);
   const token = await getToken({ req: context.req });
 
   const address = token?.sub ?? null;
+
+  // Fetch the site content
+  const siteContent = await prisma.content.findMany({
+    select: {
+      label: true,
+      value: true,
+    },
+  });
 
   if (!address) {
     return {
@@ -48,6 +56,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       address,
       session,
       profile: getContact,
+      siteContent,
     },
   };
 };
@@ -65,11 +74,15 @@ async function saveProfile(payload: any) {
   return await response.json();
 }
 
-export default function Manage({ address, profile }: AuthenticatedPageProps) {
+export default function Manage({
+  address,
+  profile,
+  siteContent,
+}: AuthenticatedPageProps) {
   const router = useRouter();
   const { status } = useSession();
   const { address: injectedAddress } = useAccount();
-  const { chain } = useNetwork()
+  const { chain } = useNetwork();
 
   const [isIncorrectChain, setIsIncorrectChain] = useState<boolean>(false);
 
@@ -126,10 +139,10 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
 
     // User is not on the correct chain
     const correctChainId = process.env.NEXT_PUBLIC_EVM_CHAIN_ID ?? "1";
-    if(chain?.id !== parseInt(correctChainId)) {
-      setIsIncorrectChain(true)
+    if (chain?.id !== parseInt(correctChainId)) {
+      setIsIncorrectChain(true);
     } else {
-      setIsIncorrectChain(false)
+      setIsIncorrectChain(false);
     }
   }, [chain]);
 
@@ -178,12 +191,8 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
     }
 
     const correctChainId = process.env.NEXT_PUBLIC_EVM_CHAIN_ID ?? 1;
-    if(isIncorrectChain) {
-      return (
-        <p>
-          😭 Please change chain to id {correctChainId}
-        </p>
-      )
+    if (isIncorrectChain) {
+      return <p>😭 Please change chain to id {correctChainId}</p>;
     }
 
     return (
@@ -209,7 +218,12 @@ export default function Manage({ address, profile }: AuthenticatedPageProps) {
   };
 
   return (
-    <Layout title={`Manage Subscription`} showAdminLink={true}>
+    <Layout
+      title={`Manage Subscription`}
+      showConnectButton={true}
+      showAdminLink={true}
+      siteBanner={getContentByLabel(`SITE_BANNER`, siteContent)}
+    >
       {showManageView()}
     </Layout>
   );

@@ -7,10 +7,14 @@ import Link from "next/link";
 export default function Layout({
   title,
   showAdminLink,
+  showConnectButton,
+  siteBanner,
   children,
 }: {
   title: string;
   showAdminLink: boolean;
+  showConnectButton?: boolean;
+  siteBanner?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -25,9 +29,11 @@ export default function Layout({
       </Head>
 
       <main className={styles.main}>
+        <img src={siteBanner} title={`${title} Banner`} />
+
         <h1>{title}</h1>
 
-        <ConnectButton />
+        {showConnectButton && <ConnectButton />}
 
         <div className={styles.children}>
             {children}
@@ -35,7 +41,9 @@ export default function Layout({
       </main>
 
       <footer className={styles.footer}>
-        <p>NFT Mailing List</p>
+        <p>
+          <a href="https://github.com/nft-mailing-list/application/wiki" target="_blank">NFT Mailing List</a>
+        </p>
         {showAdminLink && <Link href="/admin"><a id={styles.adminLink}>⚙️</a></Link>}
       </footer>
     </div>

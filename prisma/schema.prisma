@@ -21,3 +21,11 @@ model Contact {
 
   @@unique([address], name: "unique_address")
 }
+
+model Content {
+  id            String  @id   @default(cuid())
+  label         String
+  value         String  @db.Text
+
+  @@unique([label], name: "unique_label")
+}

@@ -1,12 +1,15 @@
-import Layout from "../components/Layout"
+import Layout from "../components/Layout";
 
 import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
 import { getToken } from "next-auth/jwt";
+
+import { prisma } from "../components/db";
+import { getContentByLabel } from "../utils";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
@@ -14,10 +17,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const address = token?.sub ?? null;
 
-  if(!address) {
+  // Fetch the site content
+  const siteContent = await prisma.content.findMany({
+    select: {
+      label: true,
+      value: true,
+    },
+  });
+
+  if (!address) {
     return {
-        props: {}
-    }
+      props: {
+        siteContent,
+      },
+    };
   }
 
   return {
@@ -25,24 +38,52 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       address,
       session,
       token,
+      siteContent,
     },
   };
 };
 
-export default function Index() {
+type IProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+
+export default function Index({ siteContent }: IProps) {
   const router = useRouter();
   const { status } = useSession();
 
   useEffect(() => {
     // User verified account ownership, show them the manage view
-    if(status === "authenticated") {
+    if (status === "authenticated") {
       void router.push("/manage");
     }
   });
 
-  return(
-    <Layout title={`Join the NFT mailing list!`} showAdminLink={false}>
-        By joining the mailing list you can receive updates from your favourite NFT minters via email.
+  if (siteContent === undefined) {
+    // The admin of the site has not seeded the database yet
+    return (
+      <Layout
+        title={`Finish setting up the system`}
+        showConnectButton={false}
+        showAdminLink={false}
+      >
+        We need to seed the database with <code>npm run prisma:seed</code>.{" "}
+        <a
+          href="https://github.com/nft-mailing-list/application/wiki/Configuration#seed-the-database-with-content"
+          target="_blank"
+        >
+          Check the wiki
+        </a>{" "}
+        for help!
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout
+      title={getContentByLabel(`SITE_INTRO`, siteContent)}
+      showConnectButton={true}
+      showAdminLink={false}
+      siteBanner={getContentByLabel(`SITE_BANNER`, siteContent)}
+    >
+      {getContentByLabel(`SITE_HOOK`, siteContent)}
     </Layout>
-  )
+  );
 }
