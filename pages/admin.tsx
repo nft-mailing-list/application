@@ -66,8 +66,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
   });
 
-  console.log(`actives`, countActiveSubscribers)
-
   const allContacts = await prisma.contact.findMany({
     where: {
       isSubscribed: true,
