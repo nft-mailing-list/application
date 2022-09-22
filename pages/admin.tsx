@@ -79,16 +79,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const stats = [
     {
-      value: countActiveSubscribersNfts._sum.nftsOwned,
-      label: `NFT Ownership w/ Active Subscriptions`,
-      moreInfo: `The number of NFTs owned by active subscribers. A subscriber can hold more than 1 NFT.`
-    },
-    {
-      value: allSubscribeNfts._sum.nftsOwned,
-      label: `NFT Ownership in Mailing List`,
-      moreInfo: `The total amount of NFTs owned by all subscribers - even those with an inactive subscription.`
-    },
-    {
       value: allContacts.length,
       label: `Total Subscribers`,
       moreInfo: `The total count of all active and inactive subscribers.`
@@ -97,6 +87,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       value: countActiveSubscribers._count.id,
       label: `Active Subscribers`,
       moreInfo: `The total count of active subscribers.`
+    },
+    {
+      value: allContacts.length - countActiveSubscribers._count.id,
+      label: `Inactive Subscribers`,
+      moreInfo: `The total count of inactive subscribers.`
+    },
+    {
+      value: countActiveSubscribersNfts._sum.nftsOwned,
+      label: `NFT Ownership w/ Active Subscriptions`,
+      moreInfo: `The number of NFTs owned by active subscribers. A subscriber can hold more than 1 NFT.`
+    },
+    {
+      value: allSubscribeNfts._sum.nftsOwned,
+      label: `NFT Ownership in Mailing List`,
+      moreInfo: `The total amount of NFTs owned by all subscribers - even those with an inactive subscription.`
     }
   ];
 
@@ -215,20 +220,22 @@ export default function Admin({
 
   const showGeneralStats = () => {
     return (
-      <ul id={styles.stats}>
-        {stats.map((stat: any, key: any) => {
-          return (
-            <li key={stat.label} data-tip={stat.moreInfo} onMouseEnter={() => showTooltip(true)}
-            onMouseLeave={() => {
-              showTooltip(false);
-              setTimeout(() => showTooltip(true), 50);
-            }}>
-              <label>{stat.label}:</label> 
-              {stat.value ?? 0}
-            </li>
-          );
-        })}
-      </ul>
+      <div id={styles.stats}>
+        <ul>
+          {stats.map((stat: any, key: any) => {
+            return (
+              <li key={stat.label} data-tip={stat.moreInfo} onMouseEnter={() => showTooltip(true)}
+              onMouseLeave={() => {
+                showTooltip(false);
+                setTimeout(() => showTooltip(true), 50);
+              }}>
+                <label>{stat.label}:</label> 
+                {stat.value ?? 0}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     );
   };
 

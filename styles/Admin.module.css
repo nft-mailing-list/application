@@ -1,12 +1,14 @@
-#stats ul {
+#stats {
     display: flex;
     flex-direction: row;
+    width: 996px;
+    max-width: 996px;
 }
 
 #stats li {
     display: inline-block;
     padding: 0 0 15px 0;
-    margin: 0 10px;
+    margin: 10px 10px;
     font-size: 12pt;
     width: 200px;
     text-align: center;
@@ -26,9 +28,5 @@
 @media only screen and (max-width: 1024px) {
     #stats ul {
         flex-direction: column;
-    }
-
-    #stats li {
-        margin: 10px 10px;
     }
 }
