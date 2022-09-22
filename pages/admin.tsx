@@ -1,9 +1,13 @@
 import Layout from "../components/Layout";
 import Email from "../components/Email";
 
-import { useEffect, useState, useCallback } from "react";
+import styles from "../styles/Admin.module.css";
+
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+
+import ReactTooltip from 'react-tooltip';
 
 import { useAccount, useSignMessage } from "wagmi";
 
@@ -40,7 +44,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   // Get generalised stats
-  const activeSubscribedNfts = await prisma.contact.aggregate({
+  const countActiveSubscribersNfts = await prisma.contact.aggregate({
     where: {
       isSubscribed: true,
     },
@@ -53,17 +57,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       nftsOwned: true,
     },
   });
+  const countActiveSubscribers = await prisma.contact.aggregate({
+    where: {
+      isSubscribed: true
+    },
+    _count: {
+      id: true
+    }
+  });
 
-  const stats = [
-    {
-      value: activeSubscribedNfts._sum.nftsOwned,
-      label: `Count of NFTs with active subscription in mailing list`,
-    },
-    {
-      value: allSubscribeNfts._sum.nftsOwned,
-      label: `Count of NFTs in mailing list`,
-    },
-  ];
+  console.log(`actives`, countActiveSubscribers)
 
   const allContacts = await prisma.contact.findMany({
     where: {
@@ -73,6 +76,31 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       email: true,
     },
   });
+
+  const stats = [
+    {
+      value: countActiveSubscribersNfts._sum.nftsOwned,
+      label: `NFT Ownership w/ Active Subscriptions`,
+      moreInfo: `The number of NFTs owned by active subscribers. A subscriber can hold more than 1 NFT.`
+    },
+    {
+      value: allSubscribeNfts._sum.nftsOwned,
+      label: `NFT Ownership in Mailing List`,
+      moreInfo: `The total amount of NFTs owned by all subscribers - even those with an inactive subscription.`
+    },
+    {
+      value: allContacts.length,
+      label: `Total Subscribers`,
+      moreInfo: `The total count of all active and inactive subscribers.`
+    },
+    {
+      value: countActiveSubscribers._count.id,
+      label: `Active Subscribers`,
+      moreInfo: `The total count of active subscribers.`
+    }
+  ];
+
+
 
   return {
     props: {
@@ -111,12 +139,18 @@ export default function Admin({
 
   const [apiResponseMsg, setApiResponseMsg] = useState<string>("");
 
+  const [tooltip, showTooltip] = useState<boolean>(true);
+
   const { data, isError, isLoading, isSuccess, signMessage } = useSignMessage({
     message,
     onSettled(data, error) {
       setSignedMessage(message);
       setMessage("");
     },
+  });
+
+  useEffect(() => {
+    ReactTooltip.rebuild();
   });
 
   useEffect(() => {
@@ -181,11 +215,16 @@ export default function Admin({
 
   const showGeneralStats = () => {
     return (
-      <ul>
+      <ul id={styles.stats}>
         {stats.map((stat: any, key: any) => {
           return (
-            <li key={stat.label}>
-              <strong>{stat.label}:</strong> {stat.value ?? 0}
+            <li key={stat.label} data-tip={stat.moreInfo} onMouseEnter={() => showTooltip(true)}
+            onMouseLeave={() => {
+              showTooltip(false);
+              setTimeout(() => showTooltip(true), 50);
+            }}>
+              <label>{stat.label}:</label> 
+              {stat.value ?? 0}
             </li>
           );
         })}
@@ -205,11 +244,12 @@ export default function Admin({
 
   return (
     <Layout title={`Admin`} showAdminLink={true}>
+      {tooltip && <ReactTooltip effect="float" backgroundColor={`#000`} textColor={`#FFF`} afterHide={(evt) => console.log(`Hiding`)} />}
+
       <h3>Stats</h3>
       {showGeneralStats()}
 
       <h3>Mailing List</h3>
-      <p>Total Active Mail Subscriptions: {allContacts.length}</p>
       {showMailingList()}
 
       <h3>Edit Settings</h3>
